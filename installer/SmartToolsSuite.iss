@@ -11,16 +11,16 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\Naqeebs Smart Tools
 DefaultGroupName={#MyAppName}
 OutputDir=..\artifacts
-OutputBaseFilename=Naqeebs-Smart-Tools-win-x64-Setup
+OutputBaseFilename=Naqeebs-Smart-Tools-Windows-Setup
 Compression=lzma
 SolidCompression=yes
-ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Files]
-Source: "..\publish\win-x64\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+Source: "..\publish\win-x64\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion; Check: IsWin64
+Source: "..\publish\win-x86\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion; Check: not IsWin64
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
