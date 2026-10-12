@@ -28,6 +28,8 @@
   <ItemGroup>
     <!-- Pure managed barcode engine: PDF417 + QR encoders -->
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
+    <!-- Reads SBP's daily interbank rate sheet (PDF) for the Currency Calculator -->
+    <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
   </ItemGroup>
 
 </Project>

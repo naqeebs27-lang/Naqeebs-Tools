@@ -55,6 +55,7 @@ public class MainForm : Form
         Add("business", "Business Tax", "BIZ", "#2563EB", () => new BusinessTaxTool());
         Add("loan", "Loan EMI", "EMI", "#F43F5E", () => new LoanCalculatorTool());
         Add("discount", "Discount", "%", "#14B8A6", () => new DiscountTool());
+        Add("currency", "Currency Calculator", "FX", "#6366F1", () => new CurrencyCalculatorTool());
     }
 
     private void Add(string key, string name, string badge, string color, Func<UserControl> factory)
