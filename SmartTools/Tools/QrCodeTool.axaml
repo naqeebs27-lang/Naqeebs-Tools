@@ -1,0 +1,26 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.QrCodeTool"
+             Title="QR Code Generator"
+             Subtitle="Choose a type, fill in the details and generate a QR code.">
+  <Grid ColumnDefinitions="50*,50*">
+    <Border Classes="card" Margin="0,0,10,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Content type" Margin="0,0,0,4" />
+        <UniformGrid x:Name="ChipRow" Rows="1" Margin="0,8,0,8" />
+        <StackPanel x:Name="InputHost" Margin="0,6,0,0" />
+        <Button x:Name="GenerateButton" Classes="btn success" Content="Generate QR Code" Margin="0,22,0,0" HorizontalAlignment="Stretch" />
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Grid.Column="1" Margin="10,0,0,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Your QR code" Margin="0,0,0,8" />
+        <Border Background="{DynamicResource BrandBackground}" Height="320" CornerRadius="6">
+          <Image x:Name="PreviewImage" Stretch="Uniform" />
+        </Border>
+        <TextBlock x:Name="HintText" Classes="small muted" Text="Fill in the details and press Generate." Margin="0,8,0,0" TextWrapping="Wrap" />
+        <Button x:Name="DownloadButton" Classes="btn primary" Content="Download PNG" Margin="0,14,0,0" HorizontalAlignment="Stretch" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</ui:ToolPage>

@@ -1,0 +1,144 @@
+name: Build installers
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-installers:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore SmartTools/SmartTools.csproj
+
+      - name: Publish Windows x64 application
+        run: >-
+          dotnet publish SmartTools/SmartTools.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --property:PublishSingleFile=true
+          --property:IncludeNativeLibrariesForSelfExtract=true
+          --output publish/win-x64
+
+      - name: Publish Windows x86 application
+        run: >-
+          dotnet publish SmartTools/SmartTools.csproj
+          --configuration Release
+          --runtime win-x86
+          --self-contained true
+          --property:PublishSingleFile=true
+          --property:IncludeNativeLibrariesForSelfExtract=true
+          --output publish/win-x86
+
+      - name: Create portable Windows ZIPs
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Compress-Archive `
+            -Path publish/win-x64/* `
+            -DestinationPath artifacts/Naqeebs-Smart-Tools-win-x64.zip `
+            -CompressionLevel Optimal
+          Compress-Archive `
+            -Path publish/win-x86/* `
+            -DestinationPath artifacts/Naqeebs-Smart-Tools-win-x86.zip `
+            -CompressionLevel Optimal
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build architecture-aware Windows installer
+        shell: pwsh
+        run: iscc installer/SmartToolsSuite.iss
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Naqeebs-Smart-Tools-Windows-installer
+          path: artifacts/Naqeebs-Smart-Tools-Windows-Setup.exe
+          if-no-files-found: error
+
+      - name: Upload Windows x64 portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Naqeebs-Smart-Tools-win-x64-portable
+          path: artifacts/Naqeebs-Smart-Tools-win-x64.zip
+          if-no-files-found: error
+
+      - name: Upload Windows x86 portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Naqeebs-Smart-Tools-win-x86-portable
+          path: artifacts/Naqeebs-Smart-Tools-win-x86.zip
+          if-no-files-found: error
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish Linux x64 application
+        run: >-
+          dotnet publish SmartTools/SmartTools.csproj
+          --configuration Release
+          --runtime linux-x64
+          --self-contained true
+          --property:PublishSingleFile=true
+          --property:IncludeNativeLibrariesForSelfExtract=true
+          --output publish/linux-x64
+
+      - name: Create Linux tar.gz
+        run: |
+          mkdir -p artifacts
+          chmod +x publish/linux-x64/SmartToolsSuite
+          tar -czf artifacts/Naqeebs-Smart-Tools-linux-x64.tar.gz -C publish/linux-x64 .
+
+      - name: Prepare Snap metadata
+        run: |
+          mkdir -p snap/gui
+          cp SmartTools/Assets/icon.png snap/gui/smart-tools.png
+
+      - name: Build Ubuntu Snap package
+        id: snapcraft
+        uses: snapcore/action-build@v1
+
+      - name: Copy Snap package to artifacts
+        run: |
+          mkdir -p artifacts
+          cp "${{ steps.snapcraft.outputs.snap }}" artifacts/Naqeebs-Smart-Tools-linux-x64.snap
+
+      - name: Upload Linux x64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Naqeebs-Smart-Tools-linux-x64
+          path: artifacts/Naqeebs-Smart-Tools-linux-x64.tar.gz
+          if-no-files-found: error
+
+      - name: Upload Ubuntu Snap package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Naqeebs-Smart-Tools-ubuntu-snap
+          path: artifacts/Naqeebs-Smart-Tools-linux-x64.snap
+          if-no-files-found: error

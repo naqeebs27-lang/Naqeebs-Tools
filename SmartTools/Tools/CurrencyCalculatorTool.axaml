@@ -1,0 +1,49 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.CurrencyCalculatorTool"
+             Title="Currency Calculator"
+             Subtitle="Convert world currencies with SBP interbank or world market rates - for today or a past date.">
+  <Grid ColumnDefinitions="46*,54*">
+    <Border Classes="card" Margin="0,0,10,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Convert" />
+        <TextBlock Classes="small muted" Text="Rates load automatically for the chosen date" Margin="0,2,0,6" />
+        <TextBlock Classes="caption" Text="Amount" Margin="0,8,0,6" />
+        <ui:ModernTextBox x:Name="AmountBox" NumericOnly="True" Text="1" />
+        <TextBlock Classes="caption" Text="From" Margin="0,14,0,6" />
+        <ui:ModernComboBox x:Name="FromBox" />
+        <Button x:Name="SwapButton" Classes="btn secondary" Content="Swap currencies" Margin="0,10,0,0" HorizontalAlignment="Stretch" />
+        <TextBlock Classes="caption" Text="To" Margin="0,10,0,6" />
+        <ui:ModernComboBox x:Name="ToBox" />
+        <TextBlock Classes="caption" Text="Rate source" Margin="0,14,0,6" />
+        <ui:ModernComboBox x:Name="SourceBox" />
+        <TextBlock Classes="caption" Text="Rate date" Margin="0,14,0,6" />
+        <DatePicker x:Name="DatePick" />
+        <CheckBox x:Name="CompareCheck" Content="Compare with an earlier date" Margin="0,14,0,6" />
+        <DatePicker x:Name="ComparePick" IsEnabled="False" />
+        <Button x:Name="RefreshButton" Classes="btn primary" Content="Refresh rates" Margin="0,22,0,0" HorizontalAlignment="Stretch" />
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Grid.Column="1" Margin="10,0,0,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Result" />
+        <TextBlock Classes="small muted" Text="Indicative rates for reference" Margin="0,2,0,6" />
+        <TextBlock x:Name="AmountLine" Classes="muted" Margin="0,10,0,0" TextWrapping="Wrap" />
+        <TextBlock x:Name="MainText" Classes="big success" Text="-" Margin="0,2,0,0" TextWrapping="Wrap" />
+        <Border Classes="divider" Margin="0,14,0,12" />
+        <TextBlock x:Name="RateLine" Classes="bodybold" TextWrapping="Wrap" />
+        <TextBlock x:Name="InverseLine" Classes="small muted" Margin="0,2,0,0" TextWrapping="Wrap" />
+        <Border Classes="divider" Margin="0,12" />
+        <TextBlock x:Name="DateLine" Classes="muted" TextWrapping="Wrap" />
+        <TextBlock x:Name="BasisLine" Classes="small muted" Margin="0,2,0,0" TextWrapping="Wrap" />
+        <TextBlock x:Name="StatusText" Classes="small" Margin="0,8,0,0" TextWrapping="Wrap" IsVisible="False" />
+        <Border x:Name="CmpDivider" Classes="divider" Margin="0,12" IsVisible="False" />
+        <TextBlock x:Name="CmpTitle" Classes="caption" TextWrapping="Wrap" IsVisible="False" />
+        <TextBlock x:Name="CmpMain" Classes="large" Margin="0,2,0,0" TextWrapping="Wrap" IsVisible="False" />
+        <TextBlock x:Name="CmpRate" Classes="muted" Margin="0,2,0,0" TextWrapping="Wrap" IsVisible="False" />
+        <TextBlock x:Name="CmpChange" Classes="bodybold" Margin="0,6,0,0" TextWrapping="Wrap" IsVisible="False" />
+        <Button x:Name="PrintButton" Classes="btn secondary" Content="Print / Preview" Margin="0,18,0,0" HorizontalAlignment="Stretch" IsEnabled="False" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</ui:ToolPage>

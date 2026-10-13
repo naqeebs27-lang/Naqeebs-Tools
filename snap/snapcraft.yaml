@@ -1,0 +1,41 @@
+name: smart-tools
+base: core22
+version: '1.0.0'
+summary: Naqeebs Smart Tools
+website: https://github.com/naqeebs27-lang/Naqeebs-Tools-Linux
+description: |
+  Cross-platform productivity tools including calculators, barcode generators,
+  PDF tools, and currency utilities.
+grade: stable
+confinement: strict
+
+apps:
+  smart-tools:
+    command: bin/SmartToolsSuite
+    extensions: [gnome]
+    plugs:
+      - home
+      - network
+      - opengl
+      - wayland
+      - x11
+
+parts:
+  smart-tools:
+    plugin: dump
+    source: publish/linux-x64
+    organize:
+      SmartToolsSuite: bin/SmartToolsSuite
+    stage-packages:
+      - libfontconfig1
+      - libfreetype6
+      - libglib2.0-0
+      - libice6
+      - libsm6
+      - libx11-6
+      - libx11-xcb1
+      - libxcb1
+      - libxext6
+      - libxi6
+      - libxrandr2
+      - libxrender1

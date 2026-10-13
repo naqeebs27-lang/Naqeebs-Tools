@@ -1,0 +1,116 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.LoanCalculatorTool"
+             Title="Loan EMI Calculator"
+             Subtitle="Monthly instalments, interest breakdown and a printable amortisation report.">
+  <StackPanel>
+
+    <!-- presets + currency -->
+    <Border Classes="card" Margin="0,0,0,18">
+      <StackPanel>
+        <TextBlock Classes="caption" Text="QUICK PRESETS  -  CURRENCY" Margin="0,0,0,8" />
+        <Grid x:Name="PresetGrid" ColumnDefinitions="22*,22*,22*,22*,12*">
+          <ui:ModernComboBox x:Name="CurrencyBox" Grid.Column="4" Margin="4,0,0,0" />
+        </Grid>
+      </StackPanel>
+    </Border>
+
+    <!-- inputs (left) + results (right) -->
+    <Grid ColumnDefinitions="57*,43*" Margin="0,0,0,18">
+      <Border Classes="card" Margin="0,0,10,0">
+        <StackPanel>
+          <!-- loan amount -->
+          <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+            <TextBlock Classes="muted" Text="Loan amount" VerticalAlignment="Center" />
+            <TextBlock x:Name="AmountWords" Grid.Column="1" Classes="bodybold accent" />
+          </Grid>
+          <ui:ModernTextBox x:Name="AmountBox" NumericOnly="True" AllowDecimal="False" Margin="0,0,0,6" />
+          <ui:ModernSlider x:Name="AmountSlider" />
+          <Grid ColumnDefinitions="*,*,*,*" Margin="0,0,0,8">
+            <TextBlock x:Name="AmtM0" Classes="small light" Text="50 K" HorizontalAlignment="Left" />
+            <TextBlock x:Name="AmtM1" Grid.Column="1" Classes="small light" Text="1 Crore" HorizontalAlignment="Center" />
+            <TextBlock x:Name="AmtM2" Grid.Column="2" Classes="small light" Text="2.5 Crore" HorizontalAlignment="Center" />
+            <TextBlock x:Name="AmtM3" Grid.Column="3" Classes="small light" Text="5 Crore" HorizontalAlignment="Right" />
+          </Grid>
+          <UniformGrid x:Name="AmountChips" Columns="4" />
+
+          <Border Classes="divider" Margin="0,14" />
+
+          <!-- interest -->
+          <TextBlock Classes="caption" Text="Annual interest rate" Margin="0,0,0,6" />
+          <ui:ModernTextBox x:Name="RateBox" NumericOnly="True" Suffix="%" Text="16.5" Margin="0,0,0,6" />
+          <ui:ModernSlider x:Name="RateSlider" />
+          <Grid ColumnDefinitions="*,*,*,*">
+            <TextBlock Classes="small light" Text="0%" HorizontalAlignment="Left" />
+            <TextBlock Grid.Column="1" Classes="small light" Text="8%" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="2" Classes="small light" Text="15%" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="3" Classes="small light" Text="30%" HorizontalAlignment="Right" />
+          </Grid>
+
+          <Border Classes="divider" Margin="0,14" />
+
+          <!-- tenure -->
+          <Grid ColumnDefinitions="*,84,92" Margin="0,0,0,6">
+            <TextBlock Classes="caption" Text="Loan tenure" VerticalAlignment="Center" />
+            <Button x:Name="YearsButton" Grid.Column="1" Classes="btn secondary tiny on" Content="Years" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
+            <Button x:Name="MonthsButton" Grid.Column="2" Classes="btn secondary tiny" Content="Months" HorizontalAlignment="Stretch" />
+          </Grid>
+          <ui:ModernTextBox x:Name="TenureBox" NumericOnly="True" Suffix="Years" Text="20" Margin="0,0,0,6" />
+          <ui:ModernSlider x:Name="TenureSlider" />
+          <Grid ColumnDefinitions="*,*,*,*">
+            <TextBlock x:Name="TenM0" Classes="small light" Text="1 Year" HorizontalAlignment="Left" />
+            <TextBlock x:Name="TenM1" Grid.Column="1" Classes="small light" Text="10 Years" HorizontalAlignment="Center" />
+            <TextBlock x:Name="TenM2" Grid.Column="2" Classes="small light" Text="20 Years" HorizontalAlignment="Center" />
+            <TextBlock x:Name="TenM3" Grid.Column="3" Classes="small light" Text="30 Years" HorizontalAlignment="Right" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <StackPanel Grid.Column="1" Margin="10,0,0,0">
+        <Border Classes="card dark" Margin="0,0,0,16">
+          <StackPanel>
+            <TextBlock Classes="caption" Text="MONTHLY PAYABLE EMI" Foreground="#38BDF8" Margin="0,0,0,2" />
+            <TextBlock x:Name="EmiText" Classes="big white" Text="PKR 0" Margin="0,0,0,4" />
+            <TextBlock Classes="small sidebartext" Text="Fixed monthly principal + interest, compounded monthly." TextWrapping="Wrap" />
+            <Border Classes="divider dark" Margin="0,14" />
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+              <TextBlock Classes="sidebartext" Text="Principal amount" />
+              <TextBlock x:Name="PrincipalText" Grid.Column="1" Classes="bodybold white" Text="PKR 0" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+              <TextBlock Classes="sidebartext" Text="Total interest" />
+              <TextBlock x:Name="InterestText" Grid.Column="1" Classes="bodybold warning" Text="PKR 0" />
+            </Grid>
+            <TextBlock Classes="small sidebartext" Text="Total amount payable" />
+            <TextBlock x:Name="TotalText" Classes="large emerald" Text="PKR 0" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel>
+            <TextBlock Classes="bodybold" Text="Loan payment split" Margin="0,0,0,10" />
+            <ui:DonutChart x:Name="Donut" HorizontalAlignment="Center" Margin="0,0,0,10" />
+            <Grid ColumnDefinitions="*,*">
+              <TextBlock x:Name="LegendPrincipal" Classes="caption" Foreground="#0284C7" HorizontalAlignment="Center" />
+              <TextBlock x:Name="LegendInterest" Grid.Column="1" Classes="caption" Foreground="#F59E0B" HorizontalAlignment="Center" />
+            </Grid>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Grid>
+
+    <!-- schedule -->
+    <Border Classes="card">
+      <StackPanel>
+        <Grid ColumnDefinitions="*,170,210" Margin="0,0,0,4">
+          <TextBlock Classes="heading" Text="Amortization schedule" VerticalAlignment="Center" />
+          <Button x:Name="ExportButton" Grid.Column="1" Classes="btn primary" Content="Print / Preview" HorizontalAlignment="Stretch" Margin="0,0,8,0" />
+          <Button x:Name="ToggleButton" Grid.Column="2" Classes="btn secondary" Content="View year-wise schedule" HorizontalAlignment="Stretch" />
+        </Grid>
+        <TextBlock Classes="small muted" Text="Year-by-year repayment showing principal, interest and balance" Margin="0,0,0,8" />
+        <Border x:Name="GridHost" Height="340" Margin="0,4,0,0" IsVisible="False" CornerRadius="8" ClipToBounds="True"
+                BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1" />
+      </StackPanel>
+    </Border>
+
+  </StackPanel>
+</ui:ToolPage>

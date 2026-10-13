@@ -1,0 +1,36 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.DiscountTool"
+             Title="Discount Calculator"
+             Subtitle="Work out the sale price and see exactly how much you save.">
+  <Grid ColumnDefinitions="46*,54*">
+    <Border Classes="card" Margin="0,0,10,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Price details" />
+        <TextBlock Classes="small muted" Text="Results update as you type" Margin="0,2,0,6" />
+        <TextBlock Classes="caption" Text="Original price" Margin="0,8,0,6" />
+        <ui:ModernTextBox x:Name="PriceBox" NumericOnly="True" Prefix="$" Text="100" />
+        <TextBlock Classes="caption" Text="Discount" Margin="0,14,0,6" />
+        <ui:ModernTextBox x:Name="PercentBox" NumericOnly="True" Suffix="%" Text="15" />
+        <Button x:Name="PrintButton" Classes="btn secondary" Content="Print / Preview" Margin="0,22,0,0" HorizontalAlignment="Stretch" />
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Grid.Column="1" Margin="10,0,0,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Your price" Margin="0,0,0,4" />
+        <Grid ColumnDefinitions="*,Auto" Margin="0,10,0,0">
+          <TextBlock Classes="muted" Text="Original price" />
+          <TextBlock x:Name="OriginalText" Grid.Column="1" Classes="bodybold" Text="$ 100.00" />
+        </Grid>
+        <Border Classes="divider" Margin="0,12" />
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="muted" Text="You save" />
+          <TextBlock x:Name="SavedText" Grid.Column="1" Classes="large success" Text="$ 15.00" />
+        </Grid>
+        <Border Classes="divider" Margin="0,12" />
+        <TextBlock Classes="caption" Text="Final price" />
+        <TextBlock x:Name="FinalText" Classes="big success" Text="$ 85.00" Margin="0,2,0,0" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</ui:ToolPage>

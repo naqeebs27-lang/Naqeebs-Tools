@@ -1,0 +1,30 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.BusinessTaxTool"
+             Title="Business Tax Calculator"
+             Subtitle="Estimate FBR income tax for business / non-salaried individuals and AOPs.">
+  <Grid ColumnDefinitions="50*,50*">
+    <Border Classes="card" Margin="0,0,10,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Business income" Margin="0,0,0,4" />
+        <TextBlock Classes="caption" Text="Annual taxable income (PKR)" Margin="0,8,0,6" />
+        <ui:ModernTextBox x:Name="IncomeBox" NumericOnly="True" Prefix="PKR" Placeholder="e.g. 1200000" />
+        <TextBlock Classes="caption" Text="Tax year" Margin="0,14,0,6" />
+        <ui:ModernComboBox x:Name="YearBox" />
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,22,0,0">
+          <Button x:Name="CalcButton" Classes="btn success" Content="Calculate Tax" />
+          <Button x:Name="PrintButton" Classes="btn secondary" Content="Print / Preview" IsEnabled="False" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Grid.Column="1" Margin="10,0,0,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Estimated tax" Margin="0,0,0,4" />
+        <TextBlock x:Name="HintText" Classes="muted" Text="Enter your annual taxable income and press Calculate." Margin="0,8,0,0" TextWrapping="Wrap" />
+        <TextBlock x:Name="CaptionText" Classes="caption" Text="Total estimated income tax payable" Margin="0,8,0,0" IsVisible="False" />
+        <TextBlock x:Name="TaxText" Classes="big success" Text="Rs. 0" Margin="0,2,0,0" IsVisible="False" />
+        <TextBlock x:Name="NoteText" Classes="small muted" Margin="0,10,0,0" TextWrapping="Wrap" IsVisible="False" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</ui:ToolPage>

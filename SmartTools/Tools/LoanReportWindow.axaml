@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SmartTools.Tools.LoanReportWindow"
+        Title="Loan Estimate &amp; Amortization Report"
+        Icon="avares://SmartToolsSuite/Assets/icon.png"
+        Width="960" Height="760" MinWidth="760" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+  <Grid Margin="24" RowDefinitions="Auto,Auto,*,Auto">
+    <!-- header -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,14">
+      <TextBlock Classes="large" Text="LOAN ESTIMATE &amp; AMORTIZATION REPORT" Margin="0,0,0,2" />
+      <TextBlock x:Name="GeneratedText" Classes="small muted" />
+    </StackPanel>
+
+    <!-- summary cards -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,0,0,14">
+      <Border Classes="card" Margin="0,0,8,0">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="muted" Text="Loan amount" /><TextBlock x:Name="AmountText" Grid.Column="1" Classes="bodybold" /></Grid>
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="muted" Text="Interest rate" /><TextBlock x:Name="RateText" Grid.Column="1" Classes="bodybold" /></Grid>
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="muted" Text="Tenure" /><TextBlock x:Name="TenureText" Grid.Column="1" Classes="bodybold" /></Grid>
+        </StackPanel>
+      </Border>
+      <Border Classes="card dark" Grid.Column="1" Margin="8,0,0,0">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="sidebartext" Text="Monthly payable EMI" /><TextBlock x:Name="EmiText" Grid.Column="1" Classes="bodybold white" /></Grid>
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="sidebartext" Text="Total interest" /><TextBlock x:Name="InterestText" Grid.Column="1" Classes="bodybold warning" /></Grid>
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="sidebartext" Text="Total payable" /><TextBlock x:Name="TotalText" Grid.Column="1" Classes="bodybold emerald" /></Grid>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- schedule table -->
+    <Border x:Name="GridHost" Grid.Row="2" CornerRadius="10" ClipToBounds="True"
+            BorderBrush="{DynamicResource BrandBorder}" BorderThickness="1" Background="White" />
+
+    <!-- buttons -->
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" Margin="0,14,0,0">
+      <TextBlock x:Name="ToastText" Classes="bodybold success" VerticalAlignment="Center" Margin="0,0,10,0" />
+      <Button x:Name="PdfButton" Grid.Column="1" Classes="btn primary" Content="Save PDF" Width="130" Margin="0,0,8,0" />
+      <Button x:Name="PrintButton" Grid.Column="2" Classes="btn secondary" Content="Print" Width="110" Margin="0,0,8,0" />
+      <Button x:Name="CopyButton" Grid.Column="3" Classes="btn secondary" Content="Copy Text" Width="130" Margin="0,0,8,0" />
+      <Button x:Name="CsvButton" Grid.Column="4" Classes="btn secondary" Content="Save CSV" Width="130" Margin="0,0,8,0" />
+      <Button x:Name="CloseButton" Grid.Column="5" Classes="btn dark" Content="Close" Width="100" />
+    </Grid>
+  </Grid>
+</Window>

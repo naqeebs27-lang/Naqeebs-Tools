@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Cross-platform: runs on Windows, Linux (and macOS) -->
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>SmartTools</RootNamespace>
+    <AssemblyName>SmartToolsSuite</AssemblyName>
+    <Product>Naqeebs Multi Services - Smart Tools</Product>
+    <Company>Naqeebs Multi Services</Company>
+    <Version>1.0.0</Version>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- XAML uses classic (reflection) bindings; no x:DataType needed -->
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Assets/logo.png and Assets/icon.png are loaded via avares://SmartToolsSuite/Assets/... -->
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.5" />
+
+    <!-- Pure managed barcode engine: PDF417 + QR encoders (unchanged) -->
+    <PackageReference Include="ZXing.Net" Version="0.16.9" />
+    <!-- Reads SBP's daily interbank rate sheet (PDF) for the Currency Calculator (unchanged) -->
+    <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
+    <!-- Cross-platform PDF page renderer (PDFium) - replaces Windows.Data.Pdf for "PDF to Image" -->
+    <PackageReference Include="Docnet.Core" Version="2.6.0" />
+  </ItemGroup>
+
+</Project>

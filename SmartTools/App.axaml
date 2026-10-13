@@ -1,0 +1,326 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.App"
+             RequestedThemeVariant="Light">
+
+  <!-- ===================================================================
+       Colours (same palette as the old Theme.cs)
+       =================================================================== -->
+  <Application.Resources>
+    <SolidColorBrush x:Key="BrandSidebar">#0B1220</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandSidebarHover">#162036</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandSidebarActive">#1E2B47</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandSidebarText">#94A3B8</SolidColorBrush>
+
+    <SolidColorBrush x:Key="BrandBackground">#F1F5F9</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandCard">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandBorder">#E2E8F0</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandBorderStrong">#CBD5E1</SolidColorBrush>
+
+    <SolidColorBrush x:Key="BrandTextPrimary">#0F172A</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandTextMuted">#64748B</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandTextLight">#94A3B8</SolidColorBrush>
+
+    <SolidColorBrush x:Key="BrandAccent">#2563EB</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandAccentDark">#1D4ED8</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandAccentSoft">#EAF1FF</SolidColorBrush>
+
+    <SolidColorBrush x:Key="BrandSuccess">#059669</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandSuccessDark">#047857</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandWarning">#F59E0B</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandDanger">#DC2626</SolidColorBrush>
+
+    <SolidColorBrush x:Key="BrandNeutral">#EEF2F7</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandNeutralHover">#E2E8F0</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandDisabled">#CBD5E1</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandDisabledText">#F8FAFC</SolidColorBrush>
+
+    <SolidColorBrush x:Key="BrandDark">#0F172A</SolidColorBrush>
+    <SolidColorBrush x:Key="BrandDarkBorder">#1E293B</SolidColorBrush>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+    <!-- ===================================================================
+         Window / typography
+         =================================================================== -->
+    <Style Selector="Window">
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Noto Sans, DejaVu Sans, Liberation Sans, Arial" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource BrandTextPrimary}" />
+      <Setter Property="Background" Value="{DynamicResource BrandBackground}" />
+    </Style>
+
+    <Style Selector="TextBlock.title"><Setter Property="FontSize" Value="28" /><Setter Property="FontWeight" Value="Bold" /></Style>
+    <Style Selector="TextBlock.heading"><Setter Property="FontSize" Value="17" /><Setter Property="FontWeight" Value="Bold" /></Style>
+    <Style Selector="TextBlock.bodybold"><Setter Property="FontWeight" Value="Bold" /></Style>
+    <Style Selector="TextBlock.small"><Setter Property="FontSize" Value="11" /></Style>
+    <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="12" /><Setter Property="FontWeight" Value="Bold" /><Setter Property="Foreground" Value="{DynamicResource BrandTextMuted}" /></Style>
+    <Style Selector="TextBlock.large"><Setter Property="FontSize" Value="21" /><Setter Property="FontWeight" Value="Bold" /></Style>
+    <Style Selector="TextBlock.big"><Setter Property="FontSize" Value="35" /><Setter Property="FontWeight" Value="Bold" /></Style>
+    <Style Selector="TextBlock.mono"><Setter Property="FontFamily" Value="Consolas, Menlo, DejaVu Sans Mono, Liberation Mono, Courier New" /></Style>
+
+    <!-- colour classes come after the size classes so they win when combined -->
+    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource BrandTextMuted}" /></Style>
+    <Style Selector="TextBlock.light"><Setter Property="Foreground" Value="{DynamicResource BrandTextLight}" /></Style>
+    <Style Selector="TextBlock.accent"><Setter Property="Foreground" Value="{DynamicResource BrandAccent}" /></Style>
+    <Style Selector="TextBlock.success"><Setter Property="Foreground" Value="{DynamicResource BrandSuccess}" /></Style>
+    <Style Selector="TextBlock.warning"><Setter Property="Foreground" Value="{DynamicResource BrandWarning}" /></Style>
+    <Style Selector="TextBlock.danger"><Setter Property="Foreground" Value="{DynamicResource BrandDanger}" /></Style>
+    <Style Selector="TextBlock.sidebartext"><Setter Property="Foreground" Value="{DynamicResource BrandSidebarText}" /></Style>
+    <Style Selector="TextBlock.white"><Setter Property="Foreground" Value="White" /></Style>
+    <Style Selector="TextBlock.emerald"><Setter Property="Foreground" Value="#34D399" /></Style>
+
+    <!-- ===================================================================
+         Cards / dividers (replaces CardPanel)
+         =================================================================== -->
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource BrandCard}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BrandBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="22" />
+    </Style>
+    <Style Selector="Border.card.dark">
+      <Setter Property="Background" Value="{DynamicResource BrandDark}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BrandDark}" />
+    </Style>
+    <Style Selector="Border.divider">
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource BrandBorder}" />
+    </Style>
+    <Style Selector="Border.divider.dark">
+      <Setter Property="Background" Value="{DynamicResource BrandDarkBorder}" />
+    </Style>
+
+    <!-- ===================================================================
+         Buttons (replaces ModernButton)
+         Fluent's Button template reads these resource keys for every state.
+         =================================================================== -->
+    <Style Selector="Button.btn">
+      <Setter Property="Height" Value="42" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="16,0" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.btn.small">
+      <Setter Property="Height" Value="34" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="Button.btn.tiny">
+      <Setter Property="Height" Value="32" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Padding" Value="8,0" />
+    </Style>
+
+    <Style Selector="Button.primary">
+      <Style.Resources>
+        <SolidColorBrush x:Key="ButtonBackground">#2563EB</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#1D4ED8</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed">#1B45BA</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundDisabled">#CBD5E1</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForeground">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPressed">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundDisabled">#F8FAFC</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrush">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushDisabled">Transparent</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+
+    <Style Selector="Button.success">
+      <Style.Resources>
+        <SolidColorBrush x:Key="ButtonBackground">#059669</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#047857</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed">#046C4E</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundDisabled">#CBD5E1</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForeground">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPressed">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundDisabled">#F8FAFC</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrush">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushDisabled">Transparent</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+
+    <Style Selector="Button.secondary">
+      <Style.Resources>
+        <SolidColorBrush x:Key="ButtonBackground">#EEF2F7</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#E2E8F0</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed">#D5DDE8</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundDisabled">#CBD5E1</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForeground">#0F172A</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver">#0F172A</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPressed">#0F172A</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundDisabled">#F8FAFC</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrush">#E2E8F0</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver">#E2E8F0</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed">#E2E8F0</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushDisabled">Transparent</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+
+    <Style Selector="Button.dark">
+      <Style.Resources>
+        <SolidColorBrush x:Key="ButtonBackground">#1E293B</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#334155</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed">#2B3A52</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundDisabled">#CBD5E1</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForeground">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPressed">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundDisabled">#F8FAFC</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrush">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushDisabled">Transparent</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+
+    <!-- selected state of a toggle-like secondary button (QR content type, Years/Months) -->
+    <Style Selector="Button.secondary.on">
+      <Style.Resources>
+        <SolidColorBrush x:Key="ButtonBackground">#2563EB</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#1D4ED8</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed">#1B45BA</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForeground">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPressed">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrush">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed">Transparent</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+
+    <!-- ===================================================================
+         Sidebar navigation (replaces NavButton painting)
+         =================================================================== -->
+    <Style Selector="Button.nav">
+      <Setter Property="Height" Value="48" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="Normal" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Style.Resources>
+        <SolidColorBrush x:Key="ButtonBackground">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#162036</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed">#1E2B47</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForeground">#94A3B8</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPressed">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrush">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed">Transparent</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+    <Style Selector="Button.nav.selected">
+      <Style.Resources>
+        <SolidColorBrush x:Key="ButtonBackground">#1E2B47</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#1E2B47</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed">#1E2B47</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForeground">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ButtonForegroundPressed">White</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+
+    <!-- ===================================================================
+         Inputs (replaces ModernTextBox / ModernComboBox)
+         =================================================================== -->
+    <Style Selector="TextBox.modern">
+      <Setter Property="MinHeight" Value="42" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Padding" Value="12,0" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="White" />
+      <Setter Property="Foreground" Value="{DynamicResource BrandTextPrimary}" />
+      <Style.Resources>
+        <SolidColorBrush x:Key="TextControlBackground">White</SolidColorBrush>
+        <SolidColorBrush x:Key="TextControlBackgroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="TextControlBackgroundFocused">White</SolidColorBrush>
+        <SolidColorBrush x:Key="TextControlBorderBrush">#CBD5E1</SolidColorBrush>
+        <SolidColorBrush x:Key="TextControlBorderBrushPointerOver">#2563EB</SolidColorBrush>
+        <SolidColorBrush x:Key="TextControlBorderBrushFocused">#2563EB</SolidColorBrush>
+        <Thickness x:Key="TextControlBorderThemeThickness">1</Thickness>
+        <Thickness x:Key="TextControlBorderThemeThicknessFocused">1.8</Thickness>
+      </Style.Resources>
+    </Style>
+    <Style Selector="TextBox.modern.multiline">
+      <Setter Property="VerticalContentAlignment" Value="Top" />
+      <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <Style Selector="ComboBox.modern">
+      <Setter Property="MinHeight" Value="42" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Padding" Value="12,0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="White" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BrandBorderStrong}" />
+      <Style.Resources>
+        <SolidColorBrush x:Key="ComboBoxBackground">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ComboBoxBackgroundPressed">White</SolidColorBrush>
+        <SolidColorBrush x:Key="ComboBoxBorderBrush">#CBD5E1</SolidColorBrush>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver">#2563EB</SolidColorBrush>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushPressed">#2563EB</SolidColorBrush>
+      </Style.Resources>
+    </Style>
+
+    <Style Selector="DatePicker">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="MinHeight" Value="42" />
+    </Style>
+
+    <!-- ===================================================================
+         DataGrid (amortisation schedule, replaces ScheduleGrid styling)
+         =================================================================== -->
+    <Style Selector="DataGridColumnHeader">
+      <Setter Property="Background" Value="{DynamicResource BrandNeutral}" />
+      <Setter Property="Foreground" Value="{DynamicResource BrandTextPrimary}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="DataGridCell.right TextBlock">
+      <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+
+    <!-- ===================================================================
+         ToolPage template: title + subtitle + scrollable content
+         =================================================================== -->
+    <Style Selector="ui|ToolPage">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto"
+                        Background="{DynamicResource BrandBackground}">
+            <StackPanel Margin="34,28,34,28">
+              <TextBlock Classes="title" Text="{TemplateBinding Title}" Margin="0,0,0,2" />
+              <TextBlock Classes="muted" Text="{TemplateBinding Subtitle}" Margin="0,0,0,20" TextWrapping="Wrap" />
+              <ContentPresenter Name="PART_ContentPresenter"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}" />
+            </StackPanel>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+  </Application.Styles>
+</Application>

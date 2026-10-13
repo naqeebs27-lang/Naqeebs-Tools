@@ -1,0 +1,31 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.AgeCalculatorTool"
+             Title="Age Calculator"
+             Subtitle="Find an exact age in years, months, days - and every other unit.">
+  <Grid ColumnDefinitions="46*,54*">
+    <Border Classes="card" Margin="0,0,10,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Dates" Margin="0,0,0,4" />
+        <TextBlock Classes="caption" Text="Date of birth" Margin="0,8,0,6" />
+        <DatePicker x:Name="DobPicker" />
+        <TextBlock Classes="caption" Text="Age at the date of" Margin="0,14,0,6" />
+        <DatePicker x:Name="TargetPicker" />
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,22,0,0">
+          <Button x:Name="CalcButton" Classes="btn primary" Content="Calculate Age" />
+          <Button x:Name="PrintButton" Classes="btn secondary" Content="Print / Preview" IsEnabled="False" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Grid.Column="1" Margin="10,0,0,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Result" Margin="0,0,0,4" />
+        <TextBlock x:Name="HintText" Classes="muted" Text="Select a date of birth and press Calculate Age." Margin="0,8,0,0" TextWrapping="Wrap" />
+        <TextBlock x:Name="AgeCaption" Classes="caption" Text="Age" Margin="0,8,0,0" IsVisible="False" />
+        <TextBlock x:Name="PrimaryText" Classes="large" Margin="0,2,0,0" IsVisible="False" TextWrapping="Wrap" />
+        <Border x:Name="ResultDivider" Classes="divider" Margin="0,14" IsVisible="False" />
+        <TextBlock x:Name="StatsText" Classes="muted" IsVisible="False" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</ui:ToolPage>

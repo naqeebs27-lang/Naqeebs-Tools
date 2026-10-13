@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Naqeebs Smart Tools
+Comment=Cross-platform productivity tools
+Exec=smart-tools
+Icon=smart-tools
+Terminal=false
+Type=Application
+Categories=Utility;Office;

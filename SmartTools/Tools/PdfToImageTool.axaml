@@ -1,0 +1,26 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.PdfToImageTool"
+             Title="PDF to Image"
+             Subtitle="Convert every page of a PDF into a sharp PNG image (2x resolution).">
+  <StackPanel>
+    <Border Classes="card" Margin="0,0,0,18">
+      <Grid ColumnDefinitions="200,*,170">
+        <Button x:Name="ChooseButton" Classes="btn primary" Content="Choose PDF file..." HorizontalAlignment="Stretch" Margin="0,0,14,0" />
+        <TextBlock x:Name="StatusText" Grid.Column="1" Classes="muted" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,14,0"
+                   Text="Choose a PDF or drag one onto this window." />
+        <Button x:Name="SaveAllButton" Grid.Column="2" Classes="btn success" Content="Save all pages" HorizontalAlignment="Stretch" IsEnabled="False" />
+      </Grid>
+    </Border>
+
+    <Border Classes="card">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Pages" Margin="0,0,0,6" />
+        <Border Background="{DynamicResource BrandBackground}" CornerRadius="8">
+          <ScrollViewer x:Name="GalleryScroll" Height="480" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <WrapPanel x:Name="Gallery" Margin="12" />
+          </ScrollViewer>
+        </Border>
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</ui:ToolPage>

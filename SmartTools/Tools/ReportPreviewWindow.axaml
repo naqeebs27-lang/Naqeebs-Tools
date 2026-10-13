@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SmartTools.Tools.ReportPreviewWindow"
+        Title="Report preview"
+        Icon="avares://SmartToolsSuite/Assets/icon.png"
+        Width="920" Height="800" MinWidth="620" MinHeight="500"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="24">
+    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,14,0,0">
+      <TextBlock x:Name="ToastText" Classes="bodybold success" VerticalAlignment="Center" Margin="0,0,10,0" />
+      <Button x:Name="SavePdfButton" Grid.Column="1" Classes="btn primary" Content="Save PDF" Width="130" Margin="0,0,8,0" />
+      <Button x:Name="OpenButton" Grid.Column="2" Classes="btn secondary" Content="Open in PDF viewer / Print" Width="210" Margin="0,0,8,0" />
+      <Button x:Name="CloseButton" Grid.Column="3" Classes="btn dark" Content="Close" Width="100" />
+    </Grid>
+    <Border CornerRadius="10" Background="#E2E8F0">
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <StackPanel x:Name="PagesPanel" Spacing="16" Margin="16" HorizontalAlignment="Center" />
+      </ScrollViewer>
+    </Border>
+  </DockPanel>
+</Window>

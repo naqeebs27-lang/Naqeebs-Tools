@@ -1,0 +1,32 @@
+<ui:ToolPage xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SmartTools.UI"
+             x:Class="SmartTools.Tools.Code39Tool"
+             Title="Code 39 Barcode"
+             Subtitle="Create a Code 39 barcode and save it as an image.">
+  <Grid ColumnDefinitions="46*,54*">
+    <Border Classes="card" Margin="0,0,10,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Data &amp; settings" Margin="0,0,0,4" />
+        <TextBlock Classes="caption" Text="Data to encode" Margin="0,8,0,6" />
+        <ui:ModernTextBox x:Name="DataBox" Multiline="True" Height="110" Text="Aa-1234" />
+        <TextBlock x:Name="NoteText" Classes="small muted" TextWrapping="Wrap" Margin="0,6,0,0" />
+        <TextBlock Classes="caption" Text="Module width" Margin="0,14,0,6" />
+        <ui:ModernTextBox x:Name="ModuleBox" NumericOnly="True" Suffix="px" Text="2" />
+        <TextBlock Classes="caption" Text="Image resolution" Margin="0,14,0,6" />
+        <ui:ModernComboBox x:Name="DpiBox" />
+        <TextBlock Classes="caption" Text="Image format" Margin="0,14,0,6" />
+        <ui:ModernComboBox x:Name="FormatBox" />
+      </StackPanel>
+    </Border>
+
+    <Border Classes="card" Grid.Column="1" Margin="10,0,0,0">
+      <StackPanel>
+        <TextBlock Classes="heading" Text="Preview" Margin="0,0,0,8" />
+        <Border Background="{DynamicResource BrandBackground}" Height="260" CornerRadius="6">
+          <Image x:Name="PreviewImage" Stretch="Uniform" />
+        </Border>
+        <TextBlock x:Name="StatusText" Classes="small danger" Margin="0,8,0,0" TextWrapping="Wrap" />
+        <Button x:Name="DownloadButton" Classes="btn primary" Content="Download barcode" Margin="0,14,0,0" HorizontalAlignment="Stretch" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</ui:ToolPage>
