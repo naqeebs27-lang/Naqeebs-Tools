@@ -1,0 +1,76 @@
+name: Publish Ubuntu Snap
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Snap version (for example 1.0.1)
+        required: true
+        type: string
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish-snap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Resolve and validate Snap version
+        id: version
+        shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="${TAG_NAME#v}"
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must use the format major.minor.patch, for example 1.0.1"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          sed -i -E "s/^version: .*/version: '$VERSION'/" snap/snapcraft.yaml
+
+      - name: Publish Linux x64 application
+        run: >-
+          dotnet publish SmartTools/SmartTools.csproj
+          --configuration Release
+          --runtime linux-x64
+          --self-contained true
+          --property:PublishSingleFile=true
+          --property:IncludeNativeLibrariesForSelfExtract=true
+          --output publish/linux-x64
+
+      - name: Prepare Snap icon
+        run: |
+          mkdir -p snap/gui
+          cp SmartTools/Assets/icon.png snap/gui/smart-tools.png
+
+      - name: Build Snap package
+        id: snapcraft
+        uses: snapcore/action-build@v1
+
+      - name: Publish Snap package to the Ubuntu Snap Store
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: stable
