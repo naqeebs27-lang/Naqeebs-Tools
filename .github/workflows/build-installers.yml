@@ -149,7 +149,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Ubuntu Snap package
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Naqeebs-Smart-Tools-ubuntu-snap
           path: artifacts/Naqeebs-Smart-Tools-linux-x64.snap

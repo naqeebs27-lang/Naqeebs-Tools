@@ -16,6 +16,7 @@ public partial class CurrencyCalculatorTool : ToolPage
     private int _version;
     private bool _suppress;
     private bool _started;
+    private string _pendingStatus;
 
     public CurrencyCalculatorTool()
     {
@@ -44,6 +45,7 @@ public partial class CurrencyCalculatorTool : ToolPage
         SwapButton.Click += (s, e) => SwapCurrencies();
         RefreshButton.Click += (s, e) => RecalculateAsync(true);
         UpdateRatesButton.Click += (s, e) => RecalculateAsync(true);
+        SaveManualRatesButton.Click += async (s, e) => await SaveManualRatesAsync();
         PrintButton.Click += async (s, e) => await PrintReportAsync();
 
         AmountBox.TextChanged += (s, e) => Changed();
@@ -168,6 +170,33 @@ public partial class CurrencyCalculatorTool : ToolPage
         RecalculateAsync(false);
     }
 
+    private async Task SaveManualRatesAsync()
+    {
+        SaveManualRatesButton.IsEnabled = false;
+        SetStatus("Saving manual SBP rates and creating XML...", ThemePalette.TextMutedBrush);
+
+        try
+        {
+            DateTime date = DateOf(DatePick, DateTime.Today);
+            var saved = await RateService.SaveManualSbpRatesAsync(
+                date,
+                Fmt.ParseOr(ManualUsdBox.Text),
+                Fmt.ParseOr(ManualJpyBox.Text),
+                Fmt.ParseOr(ManualGbpBox.Text),
+                Fmt.ParseOr(ManualEurBox.Text));
+            _pendingStatus = "Saved manual SBP rates and created " + Path.GetFileName(saved.XmlPath) + " in the application data folder.";
+            RecalculateAsync(false);
+        }
+        catch (Exception ex)
+        {
+            SetStatus("Manual SBP rate save failed: " + ex.Message, ThemePalette.DangerBrush);
+        }
+        finally
+        {
+            SaveManualRatesButton.IsEnabled = true;
+        }
+    }
+
     // ------------------------------------------------------------------ calculation
 
     private async void RecalculateAsync(bool force)
@@ -220,6 +249,12 @@ public partial class CurrencyCalculatorTool : ToolPage
             }
 
             ShowResult(table1, table2, compareError, from, to, amount);
+            if (!string.IsNullOrEmpty(_pendingStatus))
+            {
+                string status = _pendingStatus;
+                _pendingStatus = null;
+                SetStatus(status, ThemePalette.TextMutedBrush);
+            }
         }
         catch (Exception ex)
         {

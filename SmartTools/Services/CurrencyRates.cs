@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 
@@ -189,6 +190,38 @@ public static class RateService
         return entry.Work;
     }
 
+    public static async Task<(RateTable Table, string XmlPath)> SaveManualSbpRatesAsync(
+        DateTime requested, double usdPkr, double jpyPkr, double gbpPkr, double eurPkr)
+    {
+        var rates = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["USD"] = usdPkr,
+            ["JPY"] = jpyPkr,
+            ["GBP"] = gbpPkr,
+            ["EUR"] = eurPkr
+        };
+
+        foreach (var rate in rates)
+        {
+            if (rate.Value <= 0 || double.IsNaN(rate.Value) || double.IsInfinity(rate.Value))
+            {
+                throw new ArgumentOutOfRangeException(rate.Key, "Enter a positive rate for " + rate.Key + ".");
+            }
+        }
+
+        requested = requested.Date;
+        WriteCache("sbp", requested, new SbpDto
+        {
+            RateDate = requested.ToString("yyyy-MM-dd", Inv),
+            PkrPer = rates
+        });
+        Memory.TryRemove(KeyOf(RateSource.SbpInterbank, requested), out _);
+
+        RateTable table = await BuildSbpAsync(requested);
+        string xmlPath = WriteImportedXml(requested, table, rates);
+        return (table, xmlPath);
+    }
+
     /// <summary>Forget everything saved for this source/date so the next GetAsync downloads again.</summary>
     public static void Invalidate(RateSource source, DateTime date)
     {
@@ -365,7 +398,11 @@ public static class RateService
 
     private static IEnumerable<string> SbpUrls(DateTime d)
     {
-        // SBP changed its file naming in 2026 - both layouts are tried, newest layout first for recent dates.
+        // SBP publishes Conversion Rates documents using several filename layouts.
+        string conversionRates = "https://www.sbp.org.pk/assets/document/conversion-rates-"
+                                + d.ToString("dd-MMMM-yyyy", Inv).ToLowerInvariant() + ".pdf";
+        string conversionRatesNew = "https://www.sbp.org.pk/assets/document/Conversion_Rates_-_"
+                                   + d.ToString("dd-MMMM-yyyy", Inv) + ".pdf";
         string current = "https://www.sbp.org.pk/assets/document/mark-to-market-revaluation-exchange-rate-"
                          + d.ToString("dd-MMMM-yyyy", Inv).ToLowerInvariant() + ".pdf";
         string legacy = "https://www.sbp.org.pk/ecodata/rates/m2m/"
@@ -373,6 +410,8 @@ public static class RateService
 
         if (d >= new DateTime(2026, 6, 1))
         {
+            yield return conversionRatesNew;
+            yield return conversionRates;
             yield return current;
             yield return legacy;
         }
@@ -463,6 +502,37 @@ public static class RateService
         return dto != null && dto.PkrPer != null && dto.PkrPer.ContainsKey("USD");
     }
 
+    private static string WriteImportedXml(DateTime requested, RateTable table, Dictionary<string, double> sbpRates)
+    {
+        string directory = Path.GetDirectoryName(CacheFile("sbp", requested));
+        string path = Path.Combine(directory, "currency-rates-" + requested.ToString("yyyyMMdd", Inv) + ".xml");
+        var root = new XElement("currencyRateData",
+            new XAttribute("source", "Imported SBP conversion-rate PDF"),
+            new XAttribute("requestedDate", requested.ToString("yyyy-MM-dd", Inv)),
+            new XAttribute("rateDate", table.RateDate.ToString("yyyy-MM-dd", Inv)),
+            new XAttribute("base", "USD"),
+            new XAttribute("generatedUtc", DateTime.UtcNow.ToString("O", Inv)));
+
+        var currencies = new XElement("currencies");
+        foreach (var currency in CurrencyCatalog.All.OrderBy(c => c.Key))
+        {
+            var element = new XElement("currency", new XAttribute("code", currency.Key));
+            if (sbpRates.TryGetValue(currency.Key, out double pkrPerUnit) && pkrPerUnit > 0)
+            {
+                element.Add(new XAttribute("sbpPkrPerUnit", pkrPerUnit.ToString("G17", Inv)));
+            }
+            if (table.PerUsd.TryGetValue(currency.Key, out double unitsPerUsd) && unitsPerUsd > 0)
+            {
+                element.Add(new XAttribute("unitsPerUsd", unitsPerUsd.ToString("G17", Inv)));
+            }
+            currencies.Add(element);
+        }
+
+        root.Add(currencies);
+        new XDocument(new XDeclaration("1.0", "utf-8", "yes"), root).Save(path);
+        return path;
+    }
+
     private static async Task<(byte[] Data, int Status)> DownloadPdfAsync(string url)
     {
         using var response = await Http.GetAsync(url);
@@ -484,7 +554,7 @@ public static class RateService
     }
 
     /// <summary>
-    /// Reads the "READY" column of SBP's Mark-to-Market table. Returns PKR per 1 unit of each currency,
+    /// Reads SBP's rate table and returns PKR per 1 unit of each currency,
     /// or null when the document does not look like the SBP rate sheet.
     /// Words are regrouped into visual rows by position, so it does not matter in which order the PDF stores them.
     /// </summary>
@@ -527,6 +597,15 @@ public static class RateService
                     }
                     if (tokens.Count == 0)
                     {
+                        continue;
+                    }
+
+                    if (TryNamedCurrencyRow(tokens, out string namedCode, out double namedRate))
+                    {
+                        if (!rates.ContainsKey(namedCode))
+                        {
+                            rates[namedCode] = namedRate;
+                        }
                         continue;
                     }
 
@@ -601,6 +680,49 @@ public static class RateService
             }
         }
         return true;
+    }
+
+    private static bool TryNamedCurrencyRow(List<string> tokens, out string code, out double rate)
+    {
+        code = null;
+        rate = 0;
+
+        var nameTokens = new List<string>();
+        int numericCount = 0;
+        foreach (string token in tokens)
+        {
+            if (TryRate(token, out double value))
+            {
+                numericCount++;
+                rate = value;
+            }
+            else
+            {
+                nameTokens.Add(token);
+            }
+        }
+
+        if (numericCount != 1 || rate <= 0)
+        {
+            return false;
+        }
+
+        string name = string.Join(" ", nameTokens)
+            .Replace(".", "", StringComparison.Ordinal)
+            .Replace("-", " ", StringComparison.Ordinal)
+            .Trim()
+            .ToUpperInvariant();
+
+        code = name switch
+        {
+            "U S DOLLAR" => "USD",
+            "JAPANESE YEN" => "JPY",
+            "POUND STERLING" => "GBP",
+            "EURO" => "EUR",
+            _ => null
+        };
+
+        return code != null;
     }
 
     private static bool TryRate(string s, out double value)
