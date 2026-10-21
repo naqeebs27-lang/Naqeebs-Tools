@@ -43,6 +43,7 @@ public partial class CurrencyCalculatorTool : ToolPage
 
         SwapButton.Click += (s, e) => SwapCurrencies();
         RefreshButton.Click += (s, e) => RecalculateAsync(true);
+        UpdateRatesButton.Click += (s, e) => RecalculateAsync(true);
         PrintButton.Click += async (s, e) => await PrintReportAsync();
 
         AmountBox.TextChanged += (s, e) => Changed();
@@ -57,13 +58,13 @@ public partial class CurrencyCalculatorTool : ToolPage
             Changed();
         };
 
-        // Nothing is downloaded until the page is opened for the first time.
+        // Retry current and missing rates whenever the page is opened.
         Loaded += (s, e) =>
         {
             if (!_started)
             {
                 _started = true;
-                RecalculateAsync(false);
+                RecalculateAsync(true);
             }
         };
     }
@@ -182,6 +183,7 @@ public partial class CurrencyCalculatorTool : ToolPage
         DateTime date2 = DateOf(ComparePick, DateTime.Today.AddDays(-7));
 
         RefreshButton.IsEnabled = false;
+        UpdateRatesButton.IsEnabled = false;
         SetStatus("Loading rates...", ThemePalette.TextMutedBrush);
 
         try
@@ -231,6 +233,7 @@ public partial class CurrencyCalculatorTool : ToolPage
             if (version == _version)
             {
                 RefreshButton.IsEnabled = true;
+                UpdateRatesButton.IsEnabled = true;
             }
         }
     }

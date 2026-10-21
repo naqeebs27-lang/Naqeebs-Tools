@@ -21,6 +21,7 @@
         <CheckBox x:Name="CompareCheck" Content="Compare with an earlier date" Margin="0,14,0,6" />
         <DatePicker x:Name="ComparePick" IsEnabled="False" />
         <Button x:Name="RefreshButton" Classes="btn primary" Content="Refresh rates" Margin="0,22,0,0" HorizontalAlignment="Stretch" />
+        <Button x:Name="UpdateRatesButton" Classes="btn secondary" Content="Update missing rates" Margin="0,8,0,0" HorizontalAlignment="Stretch" />
       </StackPanel>
     </Border>
 

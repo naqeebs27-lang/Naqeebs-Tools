@@ -403,6 +403,17 @@ public static class RateService
                     continue;
                 }
 
+                // A request for today may need yesterday's already-cached business-day rate
+                // when today's SBP document has not been published or cannot be reached.
+                if (d != requested)
+                {
+                    SbpDto cachedDay = ReadCache<SbpDto>("sbp", d, false);
+                    if (IsValid(cachedDay))
+                    {
+                        return cachedDay;
+                    }
+                }
+
                 foreach (string url in SbpUrls(d))
                 {
                     var download = await DownloadPdfAsync(url);
