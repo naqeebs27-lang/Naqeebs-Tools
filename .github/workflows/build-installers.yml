@@ -67,21 +67,21 @@ jobs:
         run: iscc installer/SmartToolsSuite.iss
 
       - name: Upload Windows installer
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Naqeebs-Smart-Tools-Windows-installer
           path: artifacts/Naqeebs-Smart-Tools-Windows-Setup.exe
           if-no-files-found: error
 
       - name: Upload Windows x64 portable ZIP
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Naqeebs-Smart-Tools-win-x64-portable
           path: artifacts/Naqeebs-Smart-Tools-win-x64.zip
           if-no-files-found: error
 
       - name: Upload Windows x86 portable ZIP
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Naqeebs-Smart-Tools-win-x86-portable
           path: artifacts/Naqeebs-Smart-Tools-win-x86.zip
@@ -135,14 +135,14 @@ jobs:
           cp "${{ steps.snapcraft.outputs.snap }}" artifacts/Naqeebs-Smart-Tools-linux-x64.snap
 
       - name: Upload Linux x64 build
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Naqeebs-Smart-Tools-linux-x64
           path: artifacts/Naqeebs-Smart-Tools-linux-x64.tar.gz
           if-no-files-found: error
 
       - name: Upload Linux x64 ZIP
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Naqeebs-Smart-Tools-linux-x64-zip
           path: artifacts/Naqeebs-Smart-Tools-linux-x64.zip
