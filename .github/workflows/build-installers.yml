@@ -119,16 +119,6 @@ jobs:
           --property:IncludeNativeLibrariesForSelfExtract=true
           --output publish/linux-x64
 
-      - name: Publish Linux x86 application
-        run: >-
-          dotnet publish SmartTools/SmartTools.csproj
-          --configuration Release
-          --runtime linux-x86
-          --self-contained true
-          --property:PublishSingleFile=true
-          --property:IncludeNativeLibrariesForSelfExtract=true
-          --output publish/linux-x86
-
       - name: Create Linux tar.gz
         run: |
           mkdir -p artifacts
@@ -139,17 +129,6 @@ jobs:
         run: |
           cd publish/linux-x64
           zip -r ../../artifacts/Naqeebs-Smart-Tools-linux-x64.zip .
-
-      - name: Create Linux x86 tar.gz
-        run: |
-          mkdir -p artifacts
-          chmod +x publish/linux-x86/SmartToolsSuite
-          tar -czf artifacts/Naqeebs-Smart-Tools-linux-x86.tar.gz -C publish/linux-x86 .
-
-      - name: Create Linux x86 ZIP
-        run: |
-          cd publish/linux-x86
-          zip -r ../../artifacts/Naqeebs-Smart-Tools-linux-x86.zip .
 
       - name: Prepare Snap metadata
         run: |
@@ -186,16 +165,3 @@ jobs:
           path: artifacts/Naqeebs-Smart-Tools-linux-x64.snap
           if-no-files-found: error
 
-      - name: Upload Linux x86 build
-        uses: actions/upload-artifact@v5
-        with:
-          name: Naqeebs-Smart-Tools-linux-x86
-          path: artifacts/Naqeebs-Smart-Tools-linux-x86.tar.gz
-          if-no-files-found: error
-
-      - name: Upload Linux x86 ZIP
-        uses: actions/upload-artifact@v5
-        with:
-          name: Naqeebs-Smart-Tools-linux-x86-zip
-          path: artifacts/Naqeebs-Smart-Tools-linux-x86.zip
-          if-no-files-found: error
