@@ -45,6 +45,7 @@ public partial class CurrencyCalculatorTool : ToolPage
         SwapButton.Click += (s, e) => SwapCurrencies();
         RefreshButton.Click += (s, e) => RecalculateAsync(true);
         UpdateRatesButton.Click += (s, e) => RecalculateAsync(true);
+        ImportPdfRatesButton.Click += async (s, e) => await ImportPdfRatesAsync();
         SaveManualRatesButton.Click += async (s, e) => await SaveManualRatesAsync();
         PrintButton.Click += async (s, e) => await PrintReportAsync();
 
@@ -82,7 +83,42 @@ public partial class CurrencyCalculatorTool : ToolPage
                 return i;
             }
         }
+
         return 0;
+    }
+
+    private async Task ImportPdfRatesAsync()
+    {
+        ImportPdfRatesButton.IsEnabled = false;
+        SetStatus("Choose SBP conversion-rate PDFs...", ThemePalette.TextMutedBrush);
+
+        try
+        {
+            var files = await Files.PickPdfsAsync(this);
+            if (files.Count == 0)
+            {
+                SetStatus("No PDF files selected.", ThemePalette.TextMutedBrush);
+                return;
+            }
+
+            var documents = new List<(string FileName, byte[] Data)>();
+            foreach (var file in files)
+            {
+                documents.Add((file.Name, await Files.ReadAsync(file)));
+            }
+
+            var result = await RateService.ImportSbpPdfFilesAsync(documents);
+            _pendingStatus = "Imported " + result.Imported + " PDF rate file(s); skipped " + result.Skipped + ".";
+            RecalculateAsync(false);
+        }
+        catch (Exception ex)
+        {
+            SetStatus("PDF import failed: " + ex.Message, ThemePalette.DangerBrush);
+        }
+        finally
+        {
+            ImportPdfRatesButton.IsEnabled = true;
+        }
     }
 
     private static string CodeOf(string item)

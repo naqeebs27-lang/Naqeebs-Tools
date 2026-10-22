@@ -17,6 +17,11 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v5
 
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
       - name: Set up .NET 8 SDK
         uses: actions/setup-dotnet@v5
         with:
@@ -67,21 +72,21 @@ jobs:
         run: iscc installer/SmartToolsSuite.iss
 
       - name: Upload Windows installer
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v5
         with:
           name: Naqeebs-Smart-Tools-Windows-installer
           path: artifacts/Naqeebs-Smart-Tools-Windows-Setup.exe
           if-no-files-found: error
 
       - name: Upload Windows x64 portable ZIP
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v5
         with:
           name: Naqeebs-Smart-Tools-win-x64-portable
           path: artifacts/Naqeebs-Smart-Tools-win-x64.zip
           if-no-files-found: error
 
       - name: Upload Windows x86 portable ZIP
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v5
         with:
           name: Naqeebs-Smart-Tools-win-x86-portable
           path: artifacts/Naqeebs-Smart-Tools-win-x86.zip
@@ -93,6 +98,11 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v5
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
 
       - name: Set up .NET 8 SDK
         uses: actions/setup-dotnet@v5
@@ -109,6 +119,16 @@ jobs:
           --property:IncludeNativeLibrariesForSelfExtract=true
           --output publish/linux-x64
 
+      - name: Publish Linux x86 application
+        run: >-
+          dotnet publish SmartTools/SmartTools.csproj
+          --configuration Release
+          --runtime linux-x86
+          --self-contained true
+          --property:PublishSingleFile=true
+          --property:IncludeNativeLibrariesForSelfExtract=true
+          --output publish/linux-x86
+
       - name: Create Linux tar.gz
         run: |
           mkdir -p artifacts
@@ -119,6 +139,17 @@ jobs:
         run: |
           cd publish/linux-x64
           zip -r ../../artifacts/Naqeebs-Smart-Tools-linux-x64.zip .
+
+      - name: Create Linux x86 tar.gz
+        run: |
+          mkdir -p artifacts
+          chmod +x publish/linux-x86/SmartToolsSuite
+          tar -czf artifacts/Naqeebs-Smart-Tools-linux-x86.tar.gz -C publish/linux-x86 .
+
+      - name: Create Linux x86 ZIP
+        run: |
+          cd publish/linux-x86
+          zip -r ../../artifacts/Naqeebs-Smart-Tools-linux-x86.zip .
 
       - name: Prepare Snap metadata
         run: |
@@ -135,22 +166,36 @@ jobs:
           cp "${{ steps.snapcraft.outputs.snap }}" artifacts/Naqeebs-Smart-Tools-linux-x64.snap
 
       - name: Upload Linux x64 build
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v5
         with:
           name: Naqeebs-Smart-Tools-linux-x64
           path: artifacts/Naqeebs-Smart-Tools-linux-x64.tar.gz
           if-no-files-found: error
 
       - name: Upload Linux x64 ZIP
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v5
         with:
           name: Naqeebs-Smart-Tools-linux-x64-zip
           path: artifacts/Naqeebs-Smart-Tools-linux-x64.zip
           if-no-files-found: error
 
       - name: Upload Ubuntu Snap package
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v5
         with:
           name: Naqeebs-Smart-Tools-ubuntu-snap
           path: artifacts/Naqeebs-Smart-Tools-linux-x64.snap
+          if-no-files-found: error
+
+      - name: Upload Linux x86 build
+        uses: actions/upload-artifact@v5
+        with:
+          name: Naqeebs-Smart-Tools-linux-x86
+          path: artifacts/Naqeebs-Smart-Tools-linux-x86.tar.gz
+          if-no-files-found: error
+
+      - name: Upload Linux x86 ZIP
+        uses: actions/upload-artifact@v5
+        with:
+          name: Naqeebs-Smart-Tools-linux-x86-zip
+          path: artifacts/Naqeebs-Smart-Tools-linux-x86.zip
           if-no-files-found: error

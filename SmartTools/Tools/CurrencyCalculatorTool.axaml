@@ -22,15 +22,16 @@
         <DatePicker x:Name="ComparePick" IsEnabled="False" />
         <Button x:Name="RefreshButton" Classes="btn primary" Content="Refresh rates" Margin="0,22,0,0" HorizontalAlignment="Stretch" />
         <Button x:Name="UpdateRatesButton" Classes="btn secondary" Content="Update missing rates" Margin="0,8,0,0" HorizontalAlignment="Stretch" />
+        <Button x:Name="ImportPdfRatesButton" Classes="btn secondary" Content="Import missing dates from PDFs" Margin="0,8,0,0" HorizontalAlignment="Stretch" />
         <TextBlock Classes="caption" Text="Manual SBP rates (PKR per unit)" Margin="0,14,0,6" />
         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
-          <TextBlock Classes="small muted" Text="USD" />
+          <TextBlock Classes="small muted" Text="USD - U.S. Dollar" />
           <ui:ModernTextBox x:Name="ManualUsdBox" Grid.Column="1" NumericOnly="True" Text="0" Margin="0,0,0,4" />
-          <TextBlock Classes="small muted" Grid.Row="1" Text="JPY" Margin="0,4,0,0" />
+          <TextBlock Classes="small muted" Grid.Row="1" Text="JPY - Japanese Yen" Margin="0,4,0,0" />
           <ui:ModernTextBox x:Name="ManualJpyBox" Grid.Row="1" Grid.Column="1" NumericOnly="True" Text="0" Margin="0,4,0,4" />
-          <TextBlock Classes="small muted" Grid.Row="2" Text="GBP" Margin="0,4,0,0" />
+          <TextBlock Classes="small muted" Grid.Row="2" Text="GBP - Pound Sterling" Margin="0,4,0,0" />
           <ui:ModernTextBox x:Name="ManualGbpBox" Grid.Row="2" Grid.Column="1" NumericOnly="True" Text="0" Margin="0,4,0,4" />
-          <TextBlock Classes="small muted" Grid.Row="3" Text="EUR" Margin="0,4,0,0" />
+          <TextBlock Classes="small muted" Grid.Row="3" Text="EUR - Euro" Margin="0,4,0,0" />
           <ui:ModernTextBox x:Name="ManualEurBox" Grid.Row="3" Grid.Column="1" NumericOnly="True" Text="0" Margin="0,4,0,0" />
         </Grid>
         <Button x:Name="SaveManualRatesButton" Classes="btn secondary" Content="Save manual rates and create XML" Margin="0,8,0,0" HorizontalAlignment="Stretch" />

@@ -119,6 +119,23 @@ public static class Files
         return files.Count > 0 ? files[0] : null;
     }
 
+    /// <summary>Shows an Open dialog for multiple PDFs. Returns an empty list when cancelled.</summary>
+    public static async Task<IReadOnlyList<IStorageFile>> PickPdfsAsync(Visual owner)
+    {
+        var top = TopLevel.GetTopLevel(owner);
+        if (top == null) return Array.Empty<IStorageFile>();
+
+        return await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Choose SBP conversion-rate PDFs",
+            AllowMultiple = true,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("PDF files") { Patterns = new[] { "*.pdf" } }
+            }
+        });
+    }
+
     /// <summary>Shows a folder chooser. Returns null when cancelled.</summary>
     public static async Task<IStorageFolder> PickFolderAsync(Visual owner, string title)
     {

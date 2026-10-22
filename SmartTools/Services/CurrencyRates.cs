@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
@@ -145,6 +146,7 @@ public static class RateService
     {
         public string RateDate { get; set; }
         public Dictionary<string, double> PkrPer { get; set; }
+        public bool IsManual { get; set; }
 
         [JsonIgnore]
         public bool Stale { get; set; }
@@ -213,7 +215,8 @@ public static class RateService
         WriteCache("sbp", requested, new SbpDto
         {
             RateDate = requested.ToString("yyyy-MM-dd", Inv),
-            PkrPer = rates
+            PkrPer = rates,
+            IsManual = true
         });
         Memory.TryRemove(KeyOf(RateSource.SbpInterbank, requested), out _);
 
@@ -222,12 +225,63 @@ public static class RateService
         return (table, xmlPath);
     }
 
+    public static async Task<(int Imported, int Skipped)> ImportSbpPdfFilesAsync(
+        IEnumerable<(string FileName, byte[] Data)> files)
+    {
+        int imported = 0;
+        int skipped = 0;
+
+        foreach (var file in files)
+        {
+            if (!TryDateFromFileName(file.FileName, out DateTime date) || !IsPdf(file.Data))
+            {
+                skipped++;
+                continue;
+            }
+
+            Dictionary<string, double> rates = await Task.Run(() => ParseSbpPdf(file.Data));
+            if (rates == null || !rates.ContainsKey("USD"))
+            {
+                skipped++;
+                continue;
+            }
+
+            SbpDto existing = ReadCache<SbpDto>("sbp", date, true);
+            if (existing != null && existing.IsManual)
+            {
+                skipped++;
+                continue;
+            }
+
+            WriteCache("sbp", date, new SbpDto
+            {
+                RateDate = date.ToString("yyyy-MM-dd", Inv),
+                PkrPer = rates,
+                IsManual = false
+            });
+            Memory.TryRemove(KeyOf(RateSource.SbpInterbank, date), out _);
+
+            RateTable table = await BuildSbpAsync(date);
+            WriteImportedXml(date, table, rates);
+            imported++;
+        }
+
+        return (imported, skipped);
+    }
+
     /// <summary>Forget everything saved for this source/date so the next GetAsync downloads again.</summary>
     public static void Invalidate(RateSource source, DateTime date)
     {
         date = date.Date;
         Memory.TryRemove(KeyOf(source, date), out _);
-        DeleteCache("sbp", date);
+        if (source == RateSource.SbpInterbank)
+        {
+            SbpDto cached = ReadCache<SbpDto>("sbp", date, true);
+            if (cached == null || !cached.IsManual)
+            {
+                DeleteCache("sbp", date);
+            }
+        }
         DeleteCache("world", date);
     }
 
@@ -386,12 +440,31 @@ public static class RateService
 
     private static DateTime ParseDate(string text, DateTime fallback)
     {
-        if (!string.IsNullOrEmpty(text) &&
-            DateTime.TryParseExact(text, "yyyy-MM-dd", Inv, DateTimeStyles.None, out DateTime d))
+        if (TryParseDate(text, out DateTime d))
         {
             return d;
         }
         return fallback;
+    }
+
+    private static bool TryParseDate(string text, out DateTime date)
+    {
+        date = default;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        string[] formats =
+        {
+            "yyyy-MM-dd", "yyyy/MM/dd", "yyyy.MM.dd", "yyyyMMdd",
+            "d-M-yyyy", "dd-M-yyyy", "d-MMM-yyyy", "dd-MMM-yyyy",
+            "d-MMMM-yyyy", "dd-MMMM-yyyy", "d MMM yyyy", "dd MMM yyyy",
+            "d MMMM yyyy", "dd MMMM yyyy", "MMM d, yyyy", "MMMM d, yyyy"
+        };
+
+        return DateTime.TryParseExact(text.Trim(), formats, Inv,
+            DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeLocal, out date);
     }
 
     // ------------------------------------------------------------------ SBP (PDF)
@@ -399,10 +472,14 @@ public static class RateService
     private static IEnumerable<string> SbpUrls(DateTime d)
     {
         // SBP publishes Conversion Rates documents using several filename layouts.
+        // The newer conversion-rates files are dated one day before the rates
+        // contained in the PDF (for example, ...-21-October-2026.pdf contains
+        // the 22 October rates).
+        DateTime conversionFileDate = d.AddDays(-1);
         string conversionRates = "https://www.sbp.org.pk/assets/document/conversion-rates-"
-                                + d.ToString("dd-MMMM-yyyy", Inv).ToLowerInvariant() + ".pdf";
+                                + conversionFileDate.ToString("dd-MMMM-yyyy", Inv).ToLowerInvariant() + ".pdf";
         string conversionRatesNew = "https://www.sbp.org.pk/assets/document/Conversion_Rates_-_"
-                                   + d.ToString("dd-MMMM-yyyy", Inv) + ".pdf";
+                                   + conversionFileDate.ToString("dd-MMMM-yyyy", Inv) + ".pdf";
         string current = "https://www.sbp.org.pk/assets/document/mark-to-market-revaluation-exchange-rate-"
                          + d.ToString("dd-MMMM-yyyy", Inv).ToLowerInvariant() + ".pdf";
         string legacy = "https://www.sbp.org.pk/ecodata/rates/m2m/"
@@ -420,6 +497,93 @@ public static class RateService
             yield return legacy;
             yield return current;
         }
+    }
+
+    private static IEnumerable<string> SbpListingUrls(DateTime d)
+    {
+        yield return "https://www.sbp.org.pk/ecodata/rates/m2m.asp";
+        yield return "https://www.sbp.org.pk/ecodata/rates/m2m/" + d.ToString("yyyy", Inv) + "/" + d.ToString("MMM", Inv) + "/";
+        yield return "https://www.sbp.org.pk/ecodata/rates/m2m/" + d.ToString("yyyy", Inv) + "/" + d.ToString("MMMM", Inv) + "/";
+        yield return "https://www.sbp.org.pk/assets/document/";
+    }
+
+    private static async Task<List<string>> DiscoverSbpFilesAsync(DateTime date)
+    {
+        var matches = new List<string>();
+        var seenListings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var seenFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string listingUrl in SbpListingUrls(date))
+        {
+            if (!seenListings.Add(listingUrl))
+            {
+                continue;
+            }
+
+            string html;
+            try
+            {
+                html = await Http.GetStringAsync(listingUrl);
+            }
+            catch
+            {
+                continue;
+            }
+
+            MatchCollection links = Regex.Matches(html,
+                @"(?is)<a\b[^>]*href\s*=\s*[""'](?<href>[^""']+)[""'][^>]*>(?<text>.*?)</a>");
+            foreach (Match link in links)
+            {
+                string href = WebUtility.HtmlDecode(link.Groups["href"].Value.Trim());
+                if (!Uri.TryCreate(new Uri(listingUrl), href, out Uri fileUri) ||
+                    !fileUri.AbsolutePath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string fileName = WebUtility.UrlDecode(Path.GetFileName(fileUri.AbsolutePath));
+
+                // The SBP listing text is not authoritative.  SBP has changed
+                // both the filename prefix and the casing over time, but the date
+                // in the PDF filename identifies the document.  Never use link
+                // text as a fallback because it can describe a different day.
+                if (!TryDateFromFileName(fileName, out DateTime fileDate) ||
+                    fileDate.Date != ExpectedFileDate(fileName, date).Date)
+                {
+                    continue;
+                }
+
+                if (seenFiles.Add(fileUri.AbsoluteUri))
+                {
+                    matches.Add(fileUri.AbsoluteUri);
+                }
+            }
+        }
+
+        return matches;
+    }
+
+    private static DateTime ExpectedFileDate(string fileName, DateTime rateDate)
+    {
+        string name = Path.GetFileNameWithoutExtension(fileName ?? "");
+        if (name.StartsWith("conversion-rates-", StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("Conversion_Rates_-_", StringComparison.OrdinalIgnoreCase))
+        {
+            return rateDate.AddDays(-1);
+        }
+
+        return rateDate;
+    }
+
+    private static async Task<(Dictionary<string, double> Rates, int Status)> DownloadAndParseSbpAsync(string url, DateTime expectedDate)
+    {
+        var download = await DownloadPdfAsync(url, expectedDate);
+        if (download.Data == null)
+        {
+            return (null, download.Status);
+        }
+
+        return (await Task.Run(() => ParseSbpPdf(download.Data)), download.Status);
     }
 
     private static async Task<SbpDto> FetchSbpAsync(DateTime requested)
@@ -453,23 +617,42 @@ public static class RateService
                     }
                 }
 
+                foreach (string url in await DiscoverSbpFilesAsync(d))
+                {
+                    var discovered = await DownloadAndParseSbpAsync(url, d);
+                    lastStatus = discovered.Status;
+                    if (discovered.Rates == null)
+                    {
+                        continue;
+                    }
+
+                    SbpDto existing = ReadCache<SbpDto>("sbp", requested, true);
+                    if (existing != null && existing.IsManual)
+                    {
+                        return existing;
+                    }
+
+                    var dto = new SbpDto { RateDate = d.ToString("yyyy-MM-dd", Inv), PkrPer = discovered.Rates, IsManual = false };
+                    WriteCache("sbp", requested, dto);
+                    return dto;
+                }
+
                 foreach (string url in SbpUrls(d))
                 {
-                    var download = await DownloadPdfAsync(url);
+                    var download = await DownloadAndParseSbpAsync(url, d);
                     lastStatus = download.Status;
-                    if (download.Data == null)
+                    if (download.Rates == null)
                     {
                         continue;
                     }
 
-                    byte[] bytes = download.Data;
-                    Dictionary<string, double> rates = await Task.Run(() => ParseSbpPdf(bytes));
-                    if (rates == null)
+                    SbpDto existing = ReadCache<SbpDto>("sbp", requested, true);
+                    if (existing != null && existing.IsManual)
                     {
-                        continue;
+                        return existing;
                     }
 
-                    var dto = new SbpDto { RateDate = d.ToString("yyyy-MM-dd", Inv), PkrPer = rates };
+                    var dto = new SbpDto { RateDate = d.ToString("yyyy-MM-dd", Inv), PkrPer = download.Rates, IsManual = false };
                     WriteCache("sbp", requested, dto);
                     return dto;
                 }
@@ -500,6 +683,56 @@ public static class RateService
     private static bool IsValid(SbpDto dto)
     {
         return dto != null && dto.PkrPer != null && dto.PkrPer.ContainsKey("USD");
+    }
+
+    private static bool IsPdf(byte[] data)
+    {
+        return data != null && data.Length > 100 && data[0] == 0x25 && data[1] == 0x50 && data[2] == 0x44 && data[3] == 0x46;
+    }
+
+    private static bool TryDateFromFileName(string fileName, out DateTime date)
+    {
+        date = default;
+        string name = Path.GetFileNameWithoutExtension(fileName ?? "");
+
+        Match iso = Regex.Match(name, @"(?<!\d)(\d{4})[-_./ ](\d{1,2})[-_./ ](\d{1,2})(?!\d)", RegexOptions.IgnoreCase);
+        if (iso.Success && TryParseDate(iso.Groups[1].Value + "-" + iso.Groups[2].Value + "-" + iso.Groups[3].Value, out date))
+        {
+            return true;
+        }
+
+        Match compact = Regex.Match(name, @"(?<!\d)(\d{4})(\d{2})(\d{2})(?!\d)", RegexOptions.IgnoreCase);
+        if (compact.Success && TryParseDate(compact.Value, out date))
+        {
+            return true;
+        }
+
+        Match named = Regex.Match(name, @"(?<!\d)(\d{1,2})[-_. ]([A-Za-z]{3,9})[-_. ](\d{2,4})(?!\d)", RegexOptions.IgnoreCase);
+        if (named.Success)
+        {
+            string value = named.Groups[1].Value + " " + named.Groups[2].Value + " " + named.Groups[3].Value;
+            if (TryParseDate(value, out date))
+            {
+                return true;
+            }
+
+            if (DateTime.TryParseExact(value, new[] { "d MMM yy", "dd MMM yy", "d-MMM-yy", "dd-MMM-yy" },
+                Inv, DateTimeStyles.AllowWhiteSpaces, out date))
+            {
+                return true;
+            }
+        }
+
+        Match monthFirst = Regex.Match(name, @"(?<!\d)([A-Za-z]{3,9})[-_. ](\d{1,2})[-_. ](\d{2,4})(?!\d)", RegexOptions.IgnoreCase);
+        if (!monthFirst.Success)
+        {
+            return false;
+        }
+
+        string monthFirstValue = monthFirst.Groups[2].Value + " " + monthFirst.Groups[1].Value + " " + monthFirst.Groups[3].Value;
+        return TryParseDate(monthFirstValue, out date) || DateTime.TryParseExact(monthFirstValue,
+            new[] { "d MMM yy", "dd MMM yy", "d-MMM-yy", "dd-MMM-yy" }, Inv,
+            DateTimeStyles.AllowWhiteSpaces, out date);
     }
 
     private static string WriteImportedXml(DateTime requested, RateTable table, Dictionary<string, double> sbpRates)
@@ -533,7 +766,7 @@ public static class RateService
         return path;
     }
 
-    private static async Task<(byte[] Data, int Status)> DownloadPdfAsync(string url)
+    private static async Task<(byte[] Data, int Status)> DownloadPdfAsync(string url, DateTime? expectedDate = null)
     {
         using var response = await Http.GetAsync(url);
         int status = (int)response.StatusCode;
@@ -546,6 +779,19 @@ public static class RateService
                 throw new HttpRequestException("SBP server answered " + status + " " + response.ReasonPhrase);
             }
             return (null, status);
+        }
+
+        // HttpClient follows redirects.  Reject a redirected, date-bearing PDF
+        // when it resolves to another day; otherwise the wrong document can be
+        // stored under the requested date's cache key.
+        if (expectedDate.HasValue && response.RequestMessage?.RequestUri is Uri finalUri)
+        {
+            string finalName = WebUtility.UrlDecode(Path.GetFileName(finalUri.AbsolutePath));
+            if (TryDateFromFileName(finalName, out DateTime finalDate) &&
+                finalDate.Date != ExpectedFileDate(finalName, expectedDate.Value).Date)
+            {
+                return (null, status);
+            }
         }
 
         byte[] data = await response.Content.ReadAsByteArrayAsync();
@@ -708,17 +954,35 @@ public static class RateService
         }
 
         string name = string.Join(" ", nameTokens)
-            .Replace(".", "", StringComparison.Ordinal)
+            .Replace(".", " ", StringComparison.Ordinal)
             .Replace("-", " ", StringComparison.Ordinal)
             .Trim()
             .ToUpperInvariant();
 
+        name = Regex.Replace(name, @"\s+", " ");
+
         code = name switch
         {
+            "USD" => "USD",
+            "JPY" => "JPY",
+            "GBP" => "GBP",
+            "EUR" => "EUR",
+            "US DOLLAR" => "USD",
+            "US DOLLARS" => "USD",
             "U S DOLLAR" => "USD",
+            "U S DOLLARS" => "USD",
+            "UNITED STATES DOLLAR" => "USD",
+            "UNITED STATES DOLLARS" => "USD",
             "JAPANESE YEN" => "JPY",
+            "JAPANESE YENS" => "JPY",
             "POUND STERLING" => "GBP",
+            "BRITISH POUND STERLING" => "GBP",
+            "POUND" => "GBP",
             "EURO" => "EUR",
+            "$" => "USD",
+            "£" => "GBP",
+            "€" => "EUR",
+            "¥" => "JPY",
             _ => null
         };
 
